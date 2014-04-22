@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void err_exit(char* msg)
+{
+    perror("[ERROR]: ");
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
 
 int main (int argc, char* argv[])
 {
@@ -11,8 +17,7 @@ int main (int argc, char* argv[])
 
     ret_code = pipe(pipe_fd);
     if (ret_code < 0) {
-        perror("[ERROR]: pipe() failed!");
-        exit(EXIT_FAILURE);
+        err_exit("pipe() failed!\n");
     }
 
     int pid = fork();
@@ -23,8 +28,7 @@ int main (int argc, char* argv[])
 
         ret_code = execlp(argv[1], argv[1], NULL);
         if (ret_code < 0) {
-            perror("[ERROR]: execlp() failed!");
-            exit(EXIT_FAILURE);
+            err_exit("execlp() failed!\n");
         }
     } else if (pid > 0) {  // parent
         dup2(pipe_fd[0], STDIN_FILENO);
@@ -33,12 +37,10 @@ int main (int argc, char* argv[])
 
         ret_code = execlp(argv[2], argv[2], NULL);
         if (ret_code < 0) {
-            perror("[ERROR]: execlp() failed!");
-            exit(EXIT_FAILURE);
+            err_exit("execlp() failed!\n");
         }
     } else {
-        perror("[ERROR]: fork() failed!");
-        exit(EXIT_FAILURE);
+        err_exit("fork() failed!\n");
     }
 
     return 0;
